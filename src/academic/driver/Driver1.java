@@ -56,7 +56,7 @@ public class Driver1 {
         ArrayList<Enrollment> enrollments = new ArrayList<>();
         ArrayList<Enrollment> enrollmentGrade = new ArrayList<>();
         ArrayList<Students_detail> studentDetail = new ArrayList<>();
-
+        List<String> outputList = new ArrayList<>();
         ArrayList<CourseOpening> courseOpenings = new ArrayList<>();
 
         while (scanner.hasNextLine()) {
@@ -301,25 +301,49 @@ public class Driver1 {
                     System.out.println(enrollment.getCourseCode() + "|" + enrollment.getStudentId() + "|" + enrollment.getAcademicYear() + "|" + enrollment.getSemester() + "|" + grade);
                 }
 
-            } else if (parts[0].equals("find-the-best-student")) {
-              String year=parts[1];
-              String semester=parts[2];
-                
-              Collections.sort(enrollmentGrade, new Comparator<Enrollment>() {
-                @Override
-                public int compare(Enrollment e1, Enrollment e2) {
-                    return e1.getGrade().compareTo(e2.getGrade());
+            } // Global variable to store the best student ID and grades
+            String bestStudentIdGlobal = null;
+            String bestStudentGradesGlobal = null;
+            
+            if (parts[0].equals("find-the-best-student")) {
+                String academicYear = parts[1];
+                // ambil student id untuk mahasiswa dengan enrollment grade tertinggi
+                Map<String, List<String>> studentGrades = new HashMap<>();
+                Map<String, String> studentSemesterGrades = new HashMap<>();
+                for (Enrollment enrollment1 : enrollments) {
+                    if (!enrollment1.getAcademicYear().equals(academicYear)) {
+                        continue;
+                    }
+                    if (!studentGrades.containsKey(enrollment1.getStudentId())) {
+                        studentGrades.put(enrollment1.getStudentId(), new ArrayList<>());
+                    }
+                    studentGrades.get(enrollment1.getStudentId()).add(enrollment1.getGrade());
+            
+                    // Save the grades for odd and even semesters
+                    String semesterGrade = studentSemesterGrades.getOrDefault(enrollment1.getStudentId(), "/ ");
+                    String semester = enrollment1.getSemester();
+                    if ("even".equals(semester)) {
+                        semesterGrade = semesterGrade.substring(0, semesterGrade.indexOf("/")) + "/" + enrollment1.getGrade();
+                    } else if ("odd".equals(semester)) {
+                        semesterGrade = enrollment1.getGrade() + semesterGrade.substring(semesterGrade.indexOf("/"));
+                    }
+                    studentSemesterGrades.put(enrollment1.getStudentId(), semesterGrade);
                 }
-            });
-                
-              for( Enrollment enrollment1:enrollments){
-                if(year.equals(enrollment1.getAcademicYear())&& semester.equals(enrollment1.getSemester())){
-                    enrollment1.getStudentId();
-
+            
+                double bestAverageGrade = 0;
+                for (Map.Entry<String, List<String>> entry : studentGrades.entrySet()) {
+                    double averageGrade = entry.getValue().stream().mapToInt(grade -> grade.equals("A") ? 4 : grade.equals("B") ? 3 : grade.equals("C") ? 2 : grade.equals("D") ? 1 : 0).average().orElse(0);
+                    if (averageGrade > bestAverageGrade) {
+                        bestAverageGrade = averageGrade;
+                        bestStudentIdGlobal = entry.getKey();
+                        bestStudentGradesGlobal = studentSemesterGrades.get(entry.getKey());
+                    }
                 }
-              }  
+                outputList.add(bestStudentIdGlobal + "|" + bestStudentGradesGlobal);
                 
-            }else if (input.equals("---")) {
+                // System.out.println(bestStudentIdGlobal + "|" + bestStudentGradesGlobal);
+            
+            } else if (input.equals("---")) {
 
 
                 // Print lecturers
@@ -338,12 +362,15 @@ public class Driver1 {
                 for (Enrollment enrollment : enrollments) {
                     if(enrollment.getRemedial().equals("None"))
                         System.out.println(enrollment.getCourseCode() + "|" + enrollment.getStudentId() + "|" + enrollment.getAcademicYear() + "|" + enrollment.getSemester() + "|" + enrollment.getGrade());
-                         
                   else {
                     System.out.println(enrollment.getCourseCode() + "|" + enrollment.getStudentId() + "|" + enrollment.getAcademicYear() + "|" + enrollment.getSemester() + "|" + enrollment.getRemedial());
     
                         }
                     }
+                    for (String output : outputList) {
+                        System.out.println(output);
+                    }
+                
                 System.exit(0);
             }
         }
