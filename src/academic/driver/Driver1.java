@@ -300,8 +300,26 @@ public class Driver1 {
                     String grade = enrollment.getRemedial().equals("None") ? enrollment.getGrade() : enrollment.getRemedial();
                     System.out.println(enrollment.getCourseCode() + "|" + enrollment.getStudentId() + "|" + enrollment.getAcademicYear() + "|" + enrollment.getSemester() + "|" + grade);
                 }
-            
-            } else if (input.equals("---")) {
+
+            } else if (parts[0].equals("find-the-best-student")) {
+              String year=parts[1];
+              String semester=parts[2];
+                
+              Collections.sort(enrollmentGrade, new Comparator<Enrollment>() {
+                @Override
+                public int compare(Enrollment e1, Enrollment e2) {
+                    return e1.getGrade().compareTo(e2.getGrade());
+                }
+            });
+                
+              for( Enrollment enrollment1:enrollments){
+                if(year.equals(enrollment1.getAcademicYear())&& semester.equals(enrollment1.getSemester())){
+                    enrollment1.getStudentId();
+
+                }
+              }  
+                
+            }else if (input.equals("---")) {
 
 
                 // Print lecturers

@@ -14,4 +14,5 @@ public interface Enrollment {
     void setStatus(String status);
     String getRemedialGrade();
     boolean hasRemedial();
+
 }
